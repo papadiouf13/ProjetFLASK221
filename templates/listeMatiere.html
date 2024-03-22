@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+    
+
+    <!-- content goes here -->
+    <div class="col">
+      <h2>
+         Liste Matiere
+        <button
+          class="btn btn-primary float-right"
+          data-toggle="modal"
+          data-target="#myModal"
+        >
+          Ajouter une Matiere
+        </button>
+      </h2>
+
+      {%with messages = get_flashed_messages()%} {%if messages%} {% for
+      message in messages %}
+      <div class="alert alert-success alert-dismissable" role="alert">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-label="close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {{message}}
+      </div>
+      {%endfor%} {%endif%} {%endwith%}
+
+      <!-- Enter New Student Modal -->
+      <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5
+                class="modal-title text-primary"
+                style="align-content: center"
+              >
+                Ajouter une matiere
+              </h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form action="{{ url_for('insertMatiere')}}" method="POST">
+                <div class="form-group">
+                  <label>Libelle</label>
+                  <input
+                    type="text"
+                    name="libelle"
+                    class="form-control"
+                    id="exampleFormControlInput1"
+                    placeholder="Enter Full Name"
+                  />
+                </div>
+
+                <button type="submit" class="btn btn-primary mb-2">
+                  ENREGISTRER
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End of Enter New Student Modal -->
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Numero</th>
+            <th scope="col">Libelle</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in matieres %}
+          <tr>
+            <td>{{loop.index}}</td>
+            <td>{{row.libelle}}</td>
+            <td>
+              <a
+                href="/updateMatiere/{{row._id}}"
+                class="btn btn-primary btn-sm"
+                data-toggle="modal"
+                data-target="#modaledit{{row._id}}"
+                >Modifier</a
+              >
+              <a
+                href="/deleteMatiere/{{ row._id }}"
+                onclick="return confirm('Are Sure Want To Deleted ?')"
+                class="btn btn-danger btn-sm"
+                >Delete</a
+              >
+            </td>
+          </tr>
+
+          <!-- Enter New Student Modal -->
+          <div id="modaledit{{row._id}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5
+                    class="modal-title text-primary"
+                    style="align-content: center"
+                  >
+                    Modifier une matiere
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="{{ url_for('updateMatiere')}}" method="POST">
+                    <input type="hidden" name="id" value="{{row._id}}" />
+                    <div class="form-group">
+                      <label>Libelle</label>
+                      <input
+                        value="{{row.libelle}}"
+                        type="text"
+                        name="libelle"
+                        class="form-control"
+                        id="exampleFormControlInput1"
+                        placeholder="Enter Full Name"
+                      />
+                    </div>
+
+                    <button type="submit" class="btn btn-success mb-2">
+                      Modifier
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- End of Edit Student Modal -->
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Content ends here-->
+
+
+
+{% endblock %}

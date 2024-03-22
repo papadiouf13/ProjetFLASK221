@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="col p-4">
+  <form action="{{ url_for('listeNote')}}" method="GET">
+    <div class="row">
+      <div class="col-md-4 p-3">
+        <div class="form-group">
+          <select name="classeFilter" class="form-control mb-3" id="classeFilter">
+            <option value="">Filtrer par Classe</option>
+            {% for classe in classes %}
+              <option value="{{ classe.libelle }}">{{ classe.libelle }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4 p-3">
+        <div class="form-group">
+          <select name="typeNoteFilter" class="form-control mb-3" id="typeNoteFilter">
+            <option value="">Filtrer par Note</option>
+            {% for type_note in type_notes %}
+              <option value="{{ type_note.libelle }}">{{ type_note.libelle }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-2 mt-3">
+        <button type="submit" class="btn btn-primary">Filtrer</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+    
+
+    <!-- content goes here -->
+    <div class="col">
+      <h2>
+         Liste Note
+        <button
+          class="btn btn-primary float-right"
+          data-toggle="modal"
+          data-target="#myModal"
+        >
+          Ajouter une Note
+        </button>
+      </h2>
+
+      {%with messages = get_flashed_messages()%} {%if messages%} {% for
+      message in messages %}
+      <div class="alert alert-success alert-dismissable" role="alert">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-label="close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {{message}}
+      </div>
+      {%endfor%} {%endif%} {%endwith%}
+
+      <!-- Enter New Student Modal -->
+      <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5
+                class="modal-title text-primary"
+                style="align-content: center"
+              >
+                Ajouter une note
+              </h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form action="{{ url_for('insertNote')}}" method="POST">
+                <div class="form-group">
+                  <label for="classe">Classe</label>
+                  <select name="classe" class="form-control select3" id="classe" required>
+                      <option value="">Sélectionner une classe</option>
+                      {% for classe in classes %}
+                          <option value="{{ classe._id }}">{{ classe.libelle }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="matiere">Matière</label>
+                  <select name="matiere" class="form-control select2" id="matiere" required>
+                      <option value="">Sélectionner une Matière</option>
+                      {% for matiere in matieres %}
+                          <option value="{{ matiere._id }}">{{ matiere.libelle }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="etudiant">Etudiant</label>
+                  <select name="etudiant" class="form-control select3" id="etudiant" required>
+                      <option value="">Sélectionner une Etudiant</option>
+                      {% for etudiant in etudiants %}
+                          <option value="{{ etudiant._id }}">{{ etudiant.name }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Note</label>
+                  <input
+                    type="text" name="note" class="form-control" id="exampleFormControlInput1"
+                    placeholder="Entrer la valeur de la note"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="type_note">Type Note</label>
+                  <select name="type_note" class="form-control select3" id="type_note" required>
+                      <option value="">Sélectionner une Type Note</option>
+                      {% for type_note in type_notes %}
+                          <option value="{{ type_note._id }}">{{ type_note.libelle }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary mb-2">
+                  ENREGISTRER
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End of Enter New Student Modal -->
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Numero</th>
+            <th scope="col">Nom Complet</th>
+            <th scope="col">Matiere</th>
+            <th scope="col">Note</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in notes %}
+          <tr>
+            <td>{{loop.index}}</td>
+            <td>
+              {% set etudiant = mongo.db.users.find_one({'_id': ObjectId(row.etudiant_id)}) %}
+              {{ etudiant.name }}
+            </td>
+            <td>
+              {% set matiere = mongo.db.matieres.find_one({'_id': ObjectId(row.matiere_id)}) %}
+                {{ matiere.libelle }}
+            </td>
+            <td>{{row.note}}</td>
+            <td>
+              <a
+                href="/updateNote/{{row._id}}"
+                class="btn btn-primary btn-sm"
+                data-toggle="modal"
+                data-target="#modaledit{{row._id}}"
+                >Modifier</a
+              >
+              <a
+                href="/deleteNote/{{ row._id }}"
+                onclick="return confirm('Are Sure Want To Deleted ?')"
+                class="btn btn-danger btn-sm"
+                >Delete</a
+              >
+            </td>
+          </tr>
+
+          <!-- Enter New Student Modal -->
+          <div id="modaledit{{row._id}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5
+                    class="modal-title text-primary"
+                    style="align-content: center"
+                  >
+                    Modifier une note
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="{{ url_for('updateNote')}}" method="POST">
+                    <input type="hidden" name="id" value="{{row._id}}" />
+                    <div class="form-group">
+                      <label>Libelle</label>
+                      <input
+                        value="{{row.libelle}}"
+                        type="text"
+                        name="libelle"
+                        class="form-control"
+                        id="exampleFormControlInput1"
+                        placeholder="Enter Full Name"
+                      />
+                    </div>
+
+                    <button type="submit" class="btn btn-success mb-2">
+                      Modifier
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- End of Edit Student Modal -->
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Content ends here-->
+
+    <script>
+      $(document).ready(function() {
+          $('.select2').select2();
+          $('.select3').select3();
+      });
+  </script>
+
+{% endblock %}

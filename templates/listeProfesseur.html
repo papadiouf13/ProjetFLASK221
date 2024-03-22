@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- content goes here -->
+<div class="col">
+    <h2>Liste Professeur
+        <button class="btn btn-primary float-right" data-toggle="modal" data-target="#myModal">
+            Ajouter un professeur
+        </button>
+    </h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Enter New Student Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary" style="align-content: center">
+                        Ajouter un nouveau professeur
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="{{ url_for('insertProfesseur')}}" method="POST">
+                        <div class="form-group">
+                            <label>Nom Complet</label>
+                            <input type="text" name="name" class="form-control" id="exampleFormControlInput1"
+                                placeholder="Enter Full Name" required/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="text" name="email" class="form-control" id="exampleFormControlInput1"
+                                placeholder="Enter Email" required/>
+                        </div>
+                        <div class="form-group">
+                            <label>Mot de passe</label>
+                            <input type="password" name="password" class="form-control"
+                                id="exampleFormControlInput1" placeholder="Enter Password" required/>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmer le mot de passe</label>
+                            <input type="password" name="password_confirm" class="form-control"
+                                id="exampleFormControlInput1" placeholder="Confirm Password" required/>
+                        </div>
+                        <div class="form-group">
+                            <label>Numero Telephone</label>
+                            <input name="phone" type="text" class="form-control" id="exampleFormControlInput1"
+                                placeholder="Enter votre numero Telephone" required/>
+                        </div>
+                        <div class="form-group">
+                          <label>Classe</label>
+                          <select name="classe" class="form-control" id="classe" required>
+                              <option value="">Sélectionner une Classe</option>
+                              {% for classe in classes %}
+                              <option value="{{ classe._id }}">{{ classe.libelle }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                        <div class="form-group">
+                          <label>Matiere</label>
+                          <select name="matiere" class="form-control" id="matiere" required>
+                              <option value="">Selectionner une matiere</option>
+                              {% for matiere in matieres %}
+                              <option value="{{ matiere._id }}">{{ matiere.libelle }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Coefficient</label>
+                          <input name="coef" type="text" class="form-control" id="exampleFormControlInput1"
+                              placeholder="Enter le coef" required/>
+                      </div>
+
+                        <button type="submit" class="btn btn-primary mb-2">
+                            ENREGISTRER
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End of Enter New Student Modal -->
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Numero</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Matiere</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in professeurs %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ row.name }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.phone }}</td>
+                <td>{{ row.matiere }}</td>
+                <td>
+                    <a href="/updateProfesseur/{{ row._id }}" class="btn btn-primary btn-sm" data-toggle="modal"
+                        data-target="#modaledit{{ row._id }}">Edit</a>
+                    <a href="/deleteProfesseur/{{ row._id }}" onclick="return confirm('Are Sure Want To Deleted ?')"
+                        class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+
+            <!-- Enter New Student Modal -->
+            <div id="modaledit{{ row._id }}" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-primary" style="align-content: center">
+                                Modifier un professeur
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                          <form action="{{ url_for('updateProfesseur')}}" method="POST">
+                            <input type="hidden" name="id" value="{{ row._id }}" />
+                            <div class="form-group">
+                                <label>Nom Complet</label>
+                                <input value="{{ row.name }}" type="text" name="name" class="form-control" id="exampleFormControlInput1" />
+                            </div>
+                        
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input value="{{ row.email }}" type="text" name="email" class="form-control" id="exampleFormControlInput1" />
+                            </div>
+                        
+                            <div class="form-group">
+                                <label>Numero Telephone</label>
+                                <input value="{{ row.phone }}" name="phone" type="text" class="form-control" id="exampleFormControlInput1" />
+                            </div>
+                        
+                            <div class="form-group">
+                              <label>Classe</label>
+                              <select name="classe" class="form-control" id="classe" required>
+                                  <option value="">Sélectionner une Classe</option>
+                                  {% for classe in classes %}
+                                  <!-- Assurez-vous que la valeur du champ du professeur est sélectionnée si elle correspond à la classe actuelle -->
+                                  <option value="{{ classe._id }}" {% if row.classe == classe._id %} selected {% endif %}>{{ classe.libelle }}</option>
+                                  {% endfor %}
+                              </select>
+                          </div>
+                      
+                          <div class="form-group">
+                              <label>Matière</label>
+                              <select name="matiere" class="form-control" id="matiere" required>
+                                  <option value="">Sélectionner une Matière</option>
+                                  {% for matiere in matieres %}
+                                  <!-- Assurez-vous que la valeur du champ du professeur est sélectionnée si elle correspond à la matière actuelle -->
+                                  <option value="{{ matiere._id }}" {% if row.matiere == matiere._id %} selected {% endif %}>{{ matiere.libelle }}</option>
+                                  {% endfor %}
+                              </select>
+                          </div>
+                      
+                          <div class="form-group">
+                              <label>Coefficient</label>
+                              <!-- Assurez-vous que la valeur du coefficient actuel est pré-remplie -->
+                              <input value="{{ row.coef }}" name="coef" type="text" class="form-control" id="exampleFormControlInput1" />
+                          </div>
+                        
+                            <button type="submit" class="btn btn-primary mb-2">
+                                Modifier
+                            </button>
+                        </form>                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End of Edit Student Modal -->
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- Content ends here-->
+
+{% endblock %}
